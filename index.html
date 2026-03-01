@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>e-Office KPU Kota Serang — Portal SPPD</title>
+    <meta name="description" content="Portal Input Surat Perintah Perjalanan Dinas (SPPD) KPU Kota Serang" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            50: '#eef2f7',
+                            100: '#d5dde8',
+                            200: '#adbdd2',
+                            300: '#849cbb',
+                            400: '#5c7ca5',
+                            500: '#3d6491',
+                            600: '#1b3a5c',
+                            700: '#152e4a',
+                            800: '#0f2137',
+                            900: '#0a1525',
+                        },
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                    },
+                },
+            },
+        };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #adbdd2;
+            border-radius: 10px;
+        }
+
+        /* Sidebar nav */
+        .nav-link {
+            transition: all .2s ease;
+        }
+
+        .nav-link.active {
+            background: rgba(255, 255, 255, .12);
+            border-left: 3px solid #60a5fa;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, .08);
+        }
+
+        /* Animations */
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(18px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-up {
+            animation: fadeUp .5s cubic-bezier(.22, 1, .36, 1) forwards;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, .3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            animation: spin .6s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        /* Toast notification */
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateY(-12px) scale(.96);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes toastOut {
+            from {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+
+            to {
+                opacity: 0;
+                transform: translateY(-12px) scale(.96);
+            }
+        }
+
+        .toast {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 100;
+            min-width: 340px;
+            max-width: 440px;
+            padding: 16px 20px;
+            border-radius: 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, .15);
+            animation: toastIn .35s cubic-bezier(.22, 1, .36, 1) forwards;
+            backdrop-filter: blur(12px);
+        }
+
+        .toast.hide {
+            animation: toastOut .3s ease forwards;
+        }
+
+        .toast-success {
+            background: rgba(5, 150, 105, .95);
+            color: #fff;
+        }
+
+        .toast-error {
+            background: rgba(220, 38, 38, .92);
+            color: #fff;
+        }
+
+        /* Subtle pulse glow on the form card */
+        .form-card {
+            transition: box-shadow .3s ease;
+        }
+
+        .form-card:hover {
+            box-shadow: 0 8px 40px rgba(27, 58, 92, .10), 0 0 0 1px rgba(96, 165, 250, .08);
+        }
+
+        /* Input focus ring */
+        .field-input {
+            transition: border-color .2s ease, box-shadow .2s ease;
+        }
+
+        .field-input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, .15);
+        }
+
+        /* Currency input */
+        input[type="text"].currency {
+            font-variant-numeric: tabular-nums;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 min-h-screen flex">
+
+    <!-- ═══════════════════════════ SIDEBAR ═══════════════════════════ -->
+    <aside id="sidebar"
+        class="fixed inset-y-0 left-0 z-30 w-64 bg-gradient-to-b from-navy-800 to-navy-900 text-white flex flex-col transform -translate-x-full md:translate-x-0 transition-transform duration-300">
+        <!-- Logo -->
+        <div class="flex items-center gap-3 px-6 py-5 border-b border-white/10">
+            <div
+                class="w-10 h-10 rounded-lg bg-blue-500 flex items-center justify-center text-lg font-bold shadow-lg shadow-blue-500/30">
+                K</div>
+            <div>
+                <h1 class="text-sm font-bold tracking-wide leading-tight">e-Office</h1>
+                <p class="text-[11px] text-blue-300/80 font-medium">KPU Kota Serang</p>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="flex-1 px-3 py-5 space-y-1">
+            <a href="#" onclick="showPage('home')" id="nav-home"
+                class="nav-link active flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium">
+                <svg class="w-5 h-5 opacity-70" fill="none" stroke="currentColor" stroke-width="1.8"
+                    viewBox="0 0 24 24">
+                    <path
+                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z" />
+                </svg>
+                Home
+            </a>
+            <a href="#" onclick="showPage('sppd')" id="nav-sppd"
+                class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium">
+                <svg class="w-5 h-5 opacity-70" fill="none" stroke="currentColor" stroke-width="1.8"
+                    viewBox="0 0 24 24">
+                    <path
+                        d="M11 5H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-5m-1.414-9.414a2 2 0 1 1 2.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                Buat SPPD
+            </a>
+        </nav>
+
+        <!-- Footer -->
+        <div class="px-6 py-4 border-t border-white/10 text-[11px] text-blue-300/50 leading-relaxed">
+            &copy; 2026 KPU Kota Serang<br>Portal Pegawai
+        </div>
+    </aside>
+
+    <!-- Mobile overlay -->
+    <div id="overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/40 z-20 hidden md:hidden"></div>
+
+    <!-- ═══════════════════════════ MAIN CONTENT ═══════════════════════════ -->
+    <main class="flex-1 md:ml-64 min-h-screen flex flex-col">
+        <!-- Top bar -->
+        <header
+            class="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-gray-200/60 px-4 md:px-8 py-3 flex items-center justify-between">
+            <button onclick="toggleSidebar()" class="md:hidden p-2 -ml-2 rounded-lg hover:bg-gray-100 transition">
+                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" stroke-width="2"
+                    viewBox="0 0 24 24">
+                    <path d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+            <div>
+                <h2 id="page-title" class="text-lg font-semibold text-navy-800">Home</h2>
+                <p class="text-xs text-gray-400 mt-0.5">Portal Pegawai — KPU Kota Serang</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="text-right hidden sm:block">
+                    <p class="text-sm font-medium text-gray-700">Pegawai</p>
+                    <p class="text-[11px] text-gray-400">User</p>
+                </div>
+                <div
+                    class="w-9 h-9 rounded-full bg-gradient-to-br from-navy-600 to-blue-500 flex items-center justify-center text-white text-sm font-bold shadow">
+                    P</div>
+            </div>
+        </header>
+
+        <!-- ────────────── PAGE: HOME ────────────── -->
+        <section id="page-home" class="flex-1 flex items-center justify-center p-4 md:p-8">
+            <div class="text-center max-w-lg fade-up">
+                <!-- Hero icon -->
+                <div
+                    class="mx-auto w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500 to-navy-600 flex items-center justify-center mb-6 shadow-xl shadow-blue-500/20">
+                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" stroke-width="1.5"
+                        viewBox="0 0 24 24">
+                        <path
+                            d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                    </svg>
+                </div>
+                <h2 class="text-2xl md:text-3xl font-bold text-navy-800 mb-3">Portal SPPD</h2>
+                <p class="text-gray-500 text-sm md:text-base leading-relaxed mb-8">
+                    Selamat datang di Portal Surat Perintah Perjalanan Dinas. Ajukan SPPD Anda dengan mudah dan cepat
+                    melalui formulir digital.
+                </p>
+                <button onclick="showPage('sppd')"
+                    class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-navy-700 to-blue-600 text-white text-sm font-semibold shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 hover:brightness-110 active:scale-[.98] transition-all duration-200">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path
+                            d="M11 5H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-5m-1.414-9.414a2 2 0 1 1 2.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    Buat SPPD Baru
+                </button>
+            </div>
+        </section>
+
+        <!-- ────────────── PAGE: BUAT SPPD ────────────── -->
+        <section id="page-sppd" class="flex-1 flex items-start justify-center p-4 md:p-8 hidden">
+            <div class="w-full max-w-2xl fade-up">
+                <div class="form-card bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                    <!-- Header -->
+                    <div class="bg-gradient-to-r from-navy-700 to-navy-600 px-6 py-5">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center">
+                                <svg class="w-5 h-5 text-blue-200" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewBox="0 0 24 24">
+                                    <path
+                                        d="M11 5H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-5m-1.414-9.414a2 2 0 1 1 2.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-white font-semibold">Formulir SPPD Baru</h3>
+                                <p class="text-blue-200/70 text-xs mt-0.5">Isi data perjalanan dinas dengan lengkap dan
+                                    benar</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form -->
+                    <form id="sppdForm" onsubmit="submitSPPD(event)" class="p-6 md:p-8 space-y-5">
+
+                        <!-- Nama Lengkap -->
+                        <div>
+                            <label for="nama" class="block text-sm font-medium text-gray-700 mb-1.5">Nama Lengkap <span
+                                    class="text-red-400">*</span></label>
+                            <input type="text" id="nama" name="nama" required placeholder="cth. Ahmad Fauzi, S.H."
+                                class="field-input w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-sm outline-none" />
+                        </div>
+
+                        <!-- Jabatan (Dropdown) -->
+                        <div>
+                            <label for="jabatan" class="block text-sm font-medium text-gray-700 mb-1.5">Jabatan <span
+                                    class="text-red-400">*</span></label>
+                            <select id="jabatan" name="jabatan" required
+                                class="field-input w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-sm outline-none appearance-none"
+                                style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%236b7280%22 stroke-width=%222%22><polyline points=%226 9 12 15 18 9%22/></svg>'); background-repeat: no-repeat; background-position: right 14px center;">
+                                <option value="" disabled selected>— Pilih Jabatan —</option>
+                                <option value="Ketua">Ketua</option>
+                                <option value="Anggota Divisi Teknis">Anggota Divisi Teknis</option>
+                                <option value="Anggota Divisi Hukum">Anggota Divisi Hukum</option>
+                                <option value="Anggota Divisi SDM">Anggota Divisi SDM</option>
+                                <option value="Anggota Divisi Sosialisasi">Anggota Divisi Sosialisasi</option>
+                                <option value="Sekretaris">Sekretaris</option>
+                                <option value="Kepala Sub Bagian Umum">Kepala Sub Bagian Umum</option>
+                                <option value="Kepala Sub Bagian Teknis & Hupmas">Kepala Sub Bagian Teknis &amp; Hupmas
+                                </option>
+                                <option value="Staf Administrasi">Staf Administrasi</option>
+                                <option value="Staf Teknis">Staf Teknis</option>
+                            </select>
+                        </div>
+
+                        <!-- Tujuan Dinas -->
+                        <div>
+                            <label for="tujuan" class="block text-sm font-medium text-gray-700 mb-1.5">Tujuan Dinas
+                                <span class="text-red-400">*</span></label>
+                            <input type="text" id="tujuan" name="tujuan" required
+                                placeholder="cth. Jakarta — Rapat Koordinasi Nasional"
+                                class="field-input w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-sm outline-none" />
+                        </div>
+
+                        <!-- Tanggal Berangkat & Kembali -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="tglBerangkat" class="block text-sm font-medium text-gray-700 mb-1.5">Tanggal
+                                    Berangkat <span class="text-red-400">*</span></label>
+                                <input type="date" id="tglBerangkat" name="tglBerangkat" required
+                                    class="field-input w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-sm outline-none" />
+                            </div>
+                            <div>
+                                <label for="tglKembali" class="block text-sm font-medium text-gray-700 mb-1.5">Tanggal
+                                    Kembali <span class="text-red-400">*</span></label>
+                                <input type="date" id="tglKembali" name="tglKembali" required
+                                    class="field-input w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-sm outline-none" />
+                            </div>
+                        </div>
+
+                        <!-- Estimasi Biaya -->
+                        <div>
+                            <label for="biaya" class="block text-sm font-medium text-gray-700 mb-1.5">Estimasi Biaya
+                                <span class="text-red-400">*</span></label>
+                            <div class="relative">
+                                <span
+                                    class="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-medium">Rp</span>
+                                <input type="text" id="biaya" name="biaya" required placeholder="2.500.000"
+                                    oninput="formatCurrency(this)"
+                                    class="currency field-input w-full pl-11 pr-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-sm outline-none" />
+                            </div>
+                        </div>
+
+                        <!-- Divider -->
+                        <div class="border-t border-gray-100 pt-2"></div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" id="btnSubmit"
+                            class="w-full py-3 rounded-xl bg-gradient-to-r from-navy-700 to-blue-600 text-white text-sm font-semibold shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 hover:brightness-110 active:scale-[.98] transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:brightness-100">
+                            <svg id="btnIcon" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                                viewBox="0 0 24 24">
+                                <path d="M5 12h14M12 5l7 7-7 7" />
+                            </svg>
+                            <span id="btnText">Kirim SPPD</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ═══════════════════════════ TOAST CONTAINER ═══════════════════════════ -->
+    <div id="toastContainer"></div>
+
+    <!-- ═══════════════════════════ JAVASCRIPT ═══════════════════════════ -->
+    <script>
+        /* ── Page Navigation ─────────────────────────────────── */
+        function showPage(page) {
+            document.getElementById('page-home').classList.add('hidden');
+            document.getElementById('page-sppd').classList.add('hidden');
+            document.getElementById('nav-home').classList.remove('active');
+            document.getElementById('nav-sppd').classList.remove('active');
+
+            if (page === 'home') {
+                document.getElementById('page-home').classList.remove('hidden');
+                document.getElementById('nav-home').classList.add('active');
+                document.getElementById('page-title').textContent = 'Home';
+            } else {
+                document.getElementById('page-sppd').classList.remove('hidden');
+                document.getElementById('nav-sppd').classList.add('active');
+                document.getElementById('page-title').textContent = 'Buat SPPD';
+            }
+
+            if (window.innerWidth < 768) toggleSidebar();
+        }
+
+        /* ── Mobile Sidebar Toggle ───────────────────────────── */
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('-translate-x-full');
+            document.getElementById('overlay').classList.toggle('hidden');
+        }
+
+        /* ── Currency Formatter ──────────────────────────────── */
+        function formatCurrency(el) {
+            let val = el.value.replace(/\D/g, '');
+            el.value = val.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        }
+
+        /* ── Toast Notification ──────────────────────────────── */
+        function showToast(type, title, message) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+
+            const icon = type === 'success'
+                ? '<svg class="w-6 h-6 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
+                : '<svg class="w-6 h-6 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
+
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `
+        ${icon}
+        <div class="flex-1 min-w-0">
+          <p class="font-semibold text-sm">${title}</p>
+          <p class="text-xs mt-0.5 opacity-90">${message}</p>
+        </div>
+        <button onclick="this.parentElement.classList.add('hide'); setTimeout(() => this.parentElement.remove(), 300)" class="ml-2 p-1 rounded-lg hover:bg-white/20 transition flex-shrink-0">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>`;
+
+            container.appendChild(toast);
+
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.classList.add('hide');
+                    setTimeout(() => toast.remove(), 300);
+                }
+            }, 5000);
+        }
+
+        /* ── Submit SPPD ─────────────────────────────────────── */
+
+        // ╔══════════════════════════════════════════════════════════════╗
+        // ║  GANTI URL DI BAWAH DENGAN URL WEB APP GOOGLE APPS SCRIPT   ║
+        // ║  Contoh: https://script.google.com/macros/s/ABCXYZ/exec     ║
+        // ╚══════════════════════════════════════════════════════════════╝
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwGI0BMTpd6Sqy1RQJj2tdPrPRPCUxi_EEpC4QNdlO8YF7WLx0yjm0N52UU5oVvwn8/exec';
+
+        async function submitSPPD(e) {
+            e.preventDefault();
+
+            const btn = document.getElementById('btnSubmit');
+            const btnText = document.getElementById('btnText');
+            const btnIcon = document.getElementById('btnIcon');
+            const form = document.getElementById('sppdForm');
+
+            // ── Validasi tanggal ──
+            const tglBerangkat = document.getElementById('tglBerangkat').value;
+            const tglKembali = document.getElementById('tglKembali').value;
+            if (tglKembali < tglBerangkat) {
+                showToast('error', 'Validasi Gagal', 'Tanggal kembali tidak boleh sebelum tanggal berangkat.');
+                return;
+            }
+
+            // ── Susun payload JSON ──
+            const payload = {
+                nama: document.getElementById('nama').value.trim(),
+                jabatan: document.getElementById('jabatan').value,
+                tujuan: document.getElementById('tujuan').value.trim(),
+                tglBerangkat: tglBerangkat,
+                tglKembali: tglKembali,
+                biaya: document.getElementById('biaya').value.replace(/\./g, ''),
+            };
+
+            // ── Loading state ──
+            btn.disabled = true;
+            btnIcon.classList.add('hidden');
+            btnText.textContent = 'Mengirim Data...';
+            btn.insertAdjacentHTML('afterbegin', '<span class="spinner mr-2" id="loadingSpinner"></span>');
+
+            try {
+                const res = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload),
+                });
+
+                const result = await res.json();
+
+                if (result.status === 'success') {
+                    showToast('success', 'SPPD Terkirim!', `ID: ${result.id} — Data berhasil disimpan.`);
+                    form.reset();
+                } else {
+                    showToast('error', 'Gagal Mengirim', result.message || 'Terjadi kesalahan pada server.');
+                }
+            } catch (err) {
+                showToast('error', 'Koneksi Gagal', 'Tidak dapat menghubungi server. Periksa jaringan Anda.');
+            } finally {
+                // ── Kembalikan tombol ──
+                const spinner = document.getElementById('loadingSpinner');
+                if (spinner) spinner.remove();
+                btn.disabled = false;
+                btnIcon.classList.remove('hidden');
+                btnText.textContent = 'Kirim SPPD';
+            }
+        }
+    </script>
+</body>
+
+</html>
