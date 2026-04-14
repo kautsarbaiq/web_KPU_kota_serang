@@ -1,0 +1,269 @@
+<!-- SPPD Form Page Fragment — dimuat via fetch() -->
+<div class="w-full max-w-2xl fade-up mt-4 mx-auto">
+    <button onclick="showPage('sppd')"
+        class="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-navy-600 mb-4 transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M15 19l-7-7 7-7" />
+        </svg>
+        Kembali ke Menu SPPD
+    </button>
+    <div class="form-card bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+
+        <div class="bg-gradient-to-r from-navy-700 to-navy-600 px-6 py-5">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-blue-200" fill="none" stroke="currentColor" stroke-width="2"
+                        viewBox="0 0 24 24">
+                        <path
+                            d="M11 5H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-5m-1.414-9.414a2 2 0 1 1 2.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-white font-semibold">Formulir SPPD Baru</h3>
+                    <p class="text-blue-200/70 text-xs mt-0.5">Isi data perjalanan dinas dengan lengkap dan benar</p>
+                </div>
+            </div>
+        </div>
+
+        <form id="sppdForm" onsubmit="submitSPPD(event)" class="p-6 md:p-8 space-y-5">
+
+            <div>
+                <label for="nama" class="block text-sm font-medium text-gray-700 mb-1.5">Nama Lengkap <span class="text-red-400">*</span></label>
+                <input type="text" id="nama" name="nama" required placeholder="cth. Ahmad Fauzi, S.H."
+                    class="field-input w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-sm outline-none" />
+            </div>
+
+            <div>
+                <label for="nip" class="block text-sm font-medium text-gray-700 mb-1.5">NIP</label>
+                <input type="text" id="nip" name="nip" required placeholder=""
+                    class="field-input w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-sm outline-none" />
+            </div>
+
+            <!-- Pangkat -->
+            <div>
+                <label for="pangkat" class="block text-sm font-medium text-gray-700 mb-1.5">Pangkat</label>
+                <select id="pangkat" name="pangkat" required
+                    class="field-input w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-sm outline-none appearance-none"
+                    style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%236b7280%22 stroke-width=%222%22><polyline points=%226 9 12 15 18 9%22/></svg>'); background-repeat: no-repeat; background-position: right 14px center;">
+                    <option value="" disabled selected>— Pilih Pangkat —</option>
+                    <option value="Ketua">Ketua</option>
+                    <option value="Anggota">Anggota</option>
+                    <option value="Pembina">Pembina</option>
+                    <option value="Penata Tk.1">Penata Tk.1</option>
+                    <option value="Penata Muda Tk.1">Penata Muda Tk.1</option>
+                    <option value="Penata Muda">Penata Muda</option>
+                    <option value="Pelaksana">Pelaksana</option>
+                    <option value="Pamdal">Pamdal</option>
+                    <option value="Pengemudi">Pengemudi</option>
+                </select>
+            </div>
+
+            <!-- Golongan -->
+            <div>
+                <label for="golongan" class="block text-sm font-medium text-gray-700 mb-1.5">Golongan</label>
+                <select id="golongan" name="golongan" required
+                    class="field-input w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-sm outline-none appearance-none"
+                    style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%236b7280%22 stroke-width=%222%22><polyline points=%226 9 12 15 18 9%22/></svg>'); background-repeat: no-repeat; background-position: right 14px center;">
+                    <option value="" disabled selected>— Pilih Golongan —</option>
+                    <option value="Golongan I/a">Golongan I/a</option>
+                    <option value="Golongan I/b">Golongan I/b</option>
+                    <option value="Golongan I/c">Golongan I/c</option>
+                    <option value="Golongan I/d">Golongan I/d</option>
+                    <option value="Golongan II/a">Golongan II/a</option>
+                    <option value="Golongan II/b">Golongan II/b</option>
+                    <option value="Golongan II/c">Golongan II/c</option>
+                    <option value="Golongan II/d">Golongan II/d</option>
+                    <option value="Golongan III/a">Golongan III/a</option>
+                    <option value="Golongan III/b">Golongan III/b</option>
+                    <option value="Golongan III/c">Golongan III/c</option>
+                    <option value="Golongan III/d">Golongan III/d</option>
+                    <option value="Golongan IV/a">Golongan IV/a</option>
+                    <option value="Golongan IV/b">Golongan IV/b</option>
+                    <option value="Golongan IV/c">Golongan IV/c</option>
+                    <option value="Golongan IV/d">Golongan IV/d</option>
+                    <option value="Golongan IV/e">Golongan IV/e</option>
+                </select>
+            </div>
+
+            <!-- Jabatan -->
+            <div>
+                <label for="jabatan" class="block text-sm font-medium text-gray-700 mb-1.5">Jabatan <span class="text-red-400">*</span></label>
+                <select id="jabatan" name="jabatan" required
+                    class="field-input w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-sm outline-none appearance-none"
+                    style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%236b7280%22 stroke-width=%222%22><polyline points=%226 9 12 15 18 9%22/></svg>'); background-repeat: no-repeat; background-position: right 14px center;">
+                    <option value="" disabled selected>— Pilih Jabatan —</option>
+                    <option value="Ketua">Ketua</option>
+                    <option value="Anggota">Anggota</option>
+                    <option value="Sekretaris">Sekretaris</option>
+                    <option value="Kasubbag">Kasubbag</option>
+                    <option value="Jabatan Fungsional Pranata Keuangan APBN">Jabatan Fungsional Pranata Keuangan APBN</option>
+                    <option value="Pelaksana">Pelaksana</option>
+                    <option value="Pamdal">Pamdal</option>
+                    <option value="Pengemudi">Pengemudi</option>
+                </select>
+            </div>
+
+            <!-- Bagian -->
+            <div>
+                <label for="bagian" class="block text-sm font-medium text-gray-700 mb-1.5">Bagian <span class="text-red-400">*</span></label>
+                <select id="bagian" name="bagian" required
+                    class="field-input w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-sm outline-none appearance-none"
+                    style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%236b7280%22 stroke-width=%222%22><polyline points=%226 9 12 15 18 9%22/></svg>'); background-repeat: no-repeat; background-position: right 14px center;">
+                    <option value="" disabled selected>— Pilih Bagian —</option>
+                    <option value="Keuangan, Umum, Logistik dan Rumah Tangga">Keuangan, Umum, Logistik dan Rumah Tangga</option>
+                    <option value="Teknis Penyelenggaraan">Teknis Penyelenggaraan</option>
+                    <option value="Hukum dan Pengawasan">Hukum dan Pengawasan</option>
+                    <option value="Sosialisasi, Pendidikan Pemilih dan Partisipasi Masyarakat dan SDM">Sosialisasi, Pendidikan Pemilih, Partisipasi Masyarakat &amp; SDM</option>
+                    <option value="Perencanaan, Data dan Informasi">Perencanaan, Data dan Informasi</option>
+                    <option value="Sekretaris">Sekretaris</option>
+                    <option value="Hukum &amp; SDM">Hukum &amp; SDM</option>
+                    <option value="Teknis Penyelenggaraan Pemilu, Partisipasi dan Hubungan Masyarakat">Teknis Penyelenggaraan Pemilu, Partisipasi &amp; Humas</option>
+                    <option value="Keuangan, Umum dan Logistik">Keuangan, Umum dan Logistik</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="tujuan_dinas" class="block text-sm font-medium text-gray-700 mb-1.5">Tujuan Dinas <span class="text-red-400">*</span></label>
+                <input type="text" id="tujuan_dinas" name="tujuan_dinas" required placeholder="cth. Jakarta — Rapat Koordinasi Nasional"
+                    class="field-input w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-sm outline-none" />
+            </div>
+
+            <div>
+                <label for="kegiatan" class="block text-sm font-medium text-gray-700 mb-1.5">Kegiatan <span class="text-red-400">*</span></label>
+                <input type="text" id="kegiatan" name="kegiatan" required placeholder="cth. Jakarta — Rapat Koordinasi Nasional"
+                    class="field-input w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-sm outline-none" />
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label for="tglBerangkat" class="block text-sm font-medium text-gray-700 mb-1.5">Tanggal Berangkat <span class="text-red-400">*</span></label>
+                    <input type="date" id="tglBerangkat" name="tglBerangkat" required
+                        class="field-input w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-sm outline-none" />
+                </div>
+                <div>
+                    <label for="tglKembali" class="block text-sm font-medium text-gray-700 mb-1.5">Tanggal Kembali <span class="text-red-400">*</span></label>
+                    <input type="date" id="tglKembali" name="tglKembali" required
+                        class="field-input w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-sm outline-none" />
+                </div>
+            </div>
+
+            <div>
+                <label for="uang_harian" class="block text-sm font-medium text-gray-700 mb-1.5">Uang Harian</label>
+                <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-medium">Rp</span>
+                    <input type="text" id="uang_harian" name="uang_harian" required placeholder="2.500.000" oninput="formatCurrency(this)"
+                        class="currency field-input w-full pl-11 pr-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-sm outline-none" />
+                </div>
+            </div>
+
+            <div>
+                <label for="uang_transport" class="block text-sm font-medium text-gray-700 mb-1.5">Uang Transportasi</label>
+                <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-medium">Rp</span>
+                    <input type="text" id="uang_transport" name="uang_transport" required placeholder="2.500.000" oninput="formatCurrency(this)"
+                        class="currency field-input w-full pl-11 pr-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-sm outline-none" />
+                </div>
+            </div>
+
+            <div>
+                <label for="representasi" class="block text-sm font-medium text-gray-700 mb-1.5">Representasi</label>
+                <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-medium">Rp</span>
+                    <input type="text" id="representasi" name="representasi" required placeholder="2.500.000" oninput="formatCurrency(this)"
+                        class="currency field-input w-full pl-11 pr-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-sm outline-none" />
+                </div>
+            </div>
+
+            <div>
+                <label for="biaya_lokal" class="block text-sm font-medium text-gray-700 mb-1.5">Biaya Lokal</label>
+                <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-medium">Rp</span>
+                    <input type="text" id="biaya_lokal" name="biaya_lokal" required placeholder="2.500.000" oninput="formatCurrency(this)"
+                        class="currency field-input w-full pl-11 pr-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-sm outline-none" />
+                </div>
+            </div>
+
+            <div>
+                <label for="jumlah_sppd" class="block text-sm font-medium text-gray-700 mb-1.5">Jumlah SPPD Yang Diterima <span class="text-red-400">*</span></label>
+                <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-medium">Rp</span>
+                    <input type="text" id="jumlah_sppd" name="jumlah_sppd" required placeholder="2.500.000" oninput="formatCurrency(this)"
+                        class="currency field-input w-full pl-11 pr-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-sm outline-none" />
+                </div>
+            </div>
+
+            <div>
+                <label for="biaya_hotel" class="block text-sm font-medium text-gray-700 mb-1.5">Biaya Hotel</label>
+                <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-medium">Rp</span>
+                    <input type="text" id="biaya_hotel" name="biaya_hotel" required placeholder="2.500.000" oninput="formatCurrency(this)"
+                        class="currency field-input w-full pl-11 pr-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-sm outline-none" />
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="no_tiket" class="block text-sm font-medium text-gray-700 mb-1.5">No Tiket</label>
+                    <input type="text" id="no_tiket" name="no_tiket" required placeholder="Contoh: 99912345678"
+                        class="field-input w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-sm outline-none" />
+                </div>
+                <div>
+                    <label for="airlines" class="block text-sm font-medium text-gray-700 mb-1.5">Airlines</label>
+                    <input type="text" id="airlines" name="airlines" required placeholder="Contoh: Garuda Indonesia"
+                        class="field-input w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-sm outline-none" />
+                </div>
+                <div>
+                    <label for="tujuan_tiket" class="block text-sm font-medium text-gray-700 mb-1.5">Tujuan</label>
+                    <input type="text" id="tujuan_tiket" name="tujuan_tiket" required placeholder="Contoh: Bali (DPS)"
+                        class="field-input w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-sm outline-none" />
+                </div>
+                <div>
+                    <label for="harga_tiket" class="block text-sm font-medium text-gray-700 mb-1.5">Harga Tiket</label>
+                    <div class="relative">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-medium">Rp</span>
+                        <input type="text" id="harga_tiket" name="harga_tiket" required placeholder="2.500.000" oninput="formatCurrency(this)"
+                            class="currency field-input w-full pl-11 pr-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-sm outline-none" />
+                    </div>
+                </div>
+                <div>
+                    <label for="airport_tax" class="block text-sm font-medium text-gray-700 mb-1.5">Airport Tax</label>
+                    <div class="relative">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-medium">Rp</span>
+                        <input type="text" id="airport_tax" name="airport_tax" required placeholder="150.000" oninput="formatCurrency(this)"
+                            class="currency field-input w-full pl-11 pr-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-sm outline-none" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upload Foto Bukti -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Upload Foto / Bukti</label>
+                <div id="uploadArea" class="upload-area" onclick="document.getElementById('fotoInput').click()">
+                    <div id="uploadPlaceholder">
+                        <svg class="mx-auto w-10 h-10 text-gray-300 mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                            <path d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21zM8.25 8.625a1.125 1.125 0 100-2.25 1.125 1.125 0 000 2.25z" />
+                        </svg>
+                        <p class="text-sm text-gray-400">Klik atau drag & drop foto di sini</p>
+                        <p class="text-xs text-gray-300 mt-1">JPG, PNG — Maks 2 MB</p>
+                    </div>
+                    <div id="uploadPreview" class="hidden">
+                        <img id="previewImg" class="preview-img" src="" alt="Preview" />
+                        <p id="previewName" class="text-xs text-gray-500 mt-2"></p>
+                    </div>
+                </div>
+                <input type="file" id="fotoInput" accept="image/jpeg,image/png" class="hidden" onchange="handleFileSelect(this)" />
+                <button type="button" id="btnRemovePhoto" class="hidden mt-2 text-xs text-red-400 hover:text-red-600 transition" onclick="removePhoto()">✕ Hapus Foto</button>
+            </div>
+
+            <div class="border-t border-gray-100 pt-2"></div>
+
+            <button type="submit" id="btnSubmit"
+                class="w-full py-3 rounded-xl bg-gradient-to-r from-navy-700 to-blue-600 text-white text-sm font-semibold shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 hover:brightness-110 active:scale-[.98] transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:brightness-100">
+                <svg id="btnIcon" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+                <span id="btnText">Kirim SPPD</span>
+            </button>
+        </form>
+    </div>
+</div>

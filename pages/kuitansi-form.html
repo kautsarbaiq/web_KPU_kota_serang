@@ -1,0 +1,108 @@
+<!-- Kuitansi Form Page Fragment — dimuat via fetch() -->
+<div class="w-full max-w-2xl fade-up mt-4 mx-auto">
+    <button onclick="showPage('sppd')"
+        class="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-navy-600 mb-4 transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M15 19l-7-7 7-7" />
+        </svg>
+        Kembali ke Menu SPPD
+    </button>
+    <div class="form-card bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+
+        <div class="bg-gradient-to-r from-amber-700 to-orange-600 px-6 py-5">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-amber-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z" />
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-white font-semibold">Kuitansi / Bukti Pembayaran</h3>
+                    <p class="text-amber-200/70 text-xs mt-0.5">Isi data kuitansi dengan lengkap dan benar</p>
+                </div>
+            </div>
+        </div>
+
+        <form id="kuitansiForm" onsubmit="submitKuitansi(event)" class="p-6 md:p-8 space-y-5">
+
+            <!-- Sudah Terima Dari -->
+            <div class="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Sudah Terima Dari</p>
+                <p class="text-sm font-medium text-navy-800">Pejabat Pembuat Komitmen</p>
+                <p class="text-sm text-gray-500">Satker KPU Kota Serang</p>
+            </div>
+
+            <!-- Jumlah Uang -->
+            <div>
+                <label for="kwt_jumlah" class="block text-sm font-medium text-gray-700 mb-1.5">Jumlah Uang <span class="text-red-400">*</span></label>
+                <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-medium">Rp</span>
+                    <input type="text" id="kwt_jumlah" name="kwt_jumlah" required
+                        placeholder="235.000" oninput="formatCurrency(this); updateTerbilang();"
+                        class="currency field-input w-full pl-11 pr-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-sm outline-none" />
+                </div>
+            </div>
+
+            <!-- Terbilang (auto) -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Terbilang</label>
+                <div id="kwt_terbilang_display" class="px-4 py-2.5 rounded-xl border border-dashed border-gray-200 bg-gray-50/30 text-sm text-gray-500 italic min-h-[40px]">
+                    <span class="text-gray-300">Otomatis terisi dari jumlah uang…</span>
+                </div>
+                <input type="hidden" id="kwt_terbilang" name="kwt_terbilang" />
+            </div>
+
+            <!-- Untuk Pembayaran -->
+            <div>
+                <label for="kwt_pembayaran" class="block text-sm font-medium text-gray-700 mb-1.5">Untuk Pembayaran <span class="text-red-400">*</span></label>
+                <textarea id="kwt_pembayaran" name="kwt_pembayaran" required rows="3"
+                    placeholder="cth. Menghadiri Kegiatan Bimbingan Teknis Bimtek Penggunaan Aplikasi..."
+                    class="field-input w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-sm outline-none resize-none"></textarea>
+            </div>
+
+            <!-- Pada Tanggal -->
+            <div>
+                <label for="kwt_tanggal" class="block text-sm font-medium text-gray-700 mb-1.5">Pada Tanggal <span class="text-red-400">*</span></label>
+                <input type="date" id="kwt_tanggal" name="kwt_tanggal" required
+                    class="field-input w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-sm outline-none" />
+            </div>
+
+            <!-- Tempat -->
+            <div>
+                <label for="kwt_tempat" class="block text-sm font-medium text-gray-700 mb-1.5">Tempat <span class="text-red-400">*</span></label>
+                <input type="text" id="kwt_tempat" name="kwt_tempat" required placeholder="cth. Le Semar Hotel Serang Banten"
+                    class="field-input w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-sm outline-none" />
+            </div>
+
+            <!-- Upload Bukti Foto Pembayaran -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Upload Bukti Foto Pembayaran <span class="text-red-400">*</span></label>
+                <div id="kwtUploadArea" class="upload-area" onclick="document.getElementById('kwtFotoInput').click()">
+                    <div id="kwtUploadPlaceholder">
+                        <svg class="mx-auto w-10 h-10 text-gray-300 mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                            <path d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21zM8.25 8.625a1.125 1.125 0 100-2.25 1.125 1.125 0 000 2.25z" />
+                        </svg>
+                        <p class="text-sm text-gray-400">Klik atau drag & drop foto di sini</p>
+                        <p class="text-xs text-gray-300 mt-1">JPG, PNG — Maks 2 MB</p>
+                    </div>
+                    <div id="kwtUploadPreview" class="hidden">
+                        <img id="kwtPreviewImg" class="preview-img" src="" alt="Preview" />
+                        <p id="kwtPreviewName" class="text-xs text-gray-500 mt-2"></p>
+                    </div>
+                </div>
+                <input type="file" id="kwtFotoInput" accept="image/jpeg,image/png" class="hidden" onchange="handleKwtFileSelect(this)" />
+                <button type="button" id="btnRemoveKwtPhoto" class="hidden mt-2 text-xs text-red-400 hover:text-red-600 transition" onclick="removeKwtPhoto()">✕ Hapus Foto</button>
+            </div>
+
+            <div class="border-t border-gray-100 pt-2"></div>
+
+            <button type="submit" id="btnSubmitKwt"
+                class="w-full py-3 rounded-xl bg-gradient-to-r from-amber-600 to-orange-500 text-white text-sm font-semibold shadow-lg shadow-amber-500/20 hover:shadow-amber-500/30 hover:brightness-110 active:scale-[.98] transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:brightness-100">
+                <svg id="btnIconKwt" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+                <span id="btnTextKwt">Kirim Kuitansi</span>
+            </button>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,101 @@
+<!-- BKPT Form Page Fragment — dimuat via fetch() -->
+<div class="w-full max-w-2xl fade-up mt-4 mx-auto">
+    <button onclick="showPage('sppd')"
+        class="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-navy-600 mb-4 transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M15 19l-7-7 7-7" />
+        </svg>
+        Kembali ke Menu SPPD
+    </button>
+    <div class="form-card bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+
+        <div class="bg-gradient-to-r from-emerald-700 to-teal-600 px-6 py-5">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-emerald-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-white font-semibold">Bukti Konfirmasi Penyelesaian Tugas</h3>
+                    <p class="text-emerald-200/70 text-xs mt-0.5">Isi data penyelesaian tugas dinas dengan lengkap</p>
+                </div>
+            </div>
+        </div>
+
+        <form id="bkptForm" onsubmit="submitBKPT(event)" class="p-6 md:p-8 space-y-5">
+
+            <div>
+                <label for="bkpt_nama" class="block text-sm font-medium text-gray-700 mb-1.5">Nama <span class="text-red-400">*</span></label>
+                <input type="text" id="bkpt_nama" name="bkpt_nama" required placeholder="cth. Ahmad Fauzi, S.H."
+                    class="field-input w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-sm outline-none" />
+            </div>
+
+            <div>
+                <label for="bkpt_jabatan" class="block text-sm font-medium text-gray-700 mb-1.5">Jabatan <span class="text-red-400">*</span></label>
+                <select id="bkpt_jabatan" name="bkpt_jabatan" required
+                    class="field-input w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-sm outline-none appearance-none"
+                    style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%236b7280%22 stroke-width=%222%22><polyline points=%226 9 12 15 18 9%22/></svg>'); background-repeat: no-repeat; background-position: right 14px center;">
+                    <option value="" disabled selected>— Pilih Jabatan —</option>
+                    <option value="Ketua">Ketua</option>
+                    <option value="Anggota">Anggota</option>
+                    <option value="Sekretaris">Sekretaris</option>
+                    <option value="Kasubbag">Kasubbag</option>
+                    <option value="Jabatan Fungsional Pranata Keuangan APBN">Jabatan Fungsional Pranata Keuangan APBN</option>
+                    <option value="Pelaksana">Pelaksana</option>
+                    <option value="Pamdal">Pamdal</option>
+                    <option value="Pengemudi">Pengemudi</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="bkpt_tugas" class="block text-sm font-medium text-gray-700 mb-1.5">Melaksanakan tugas/pekerjaan dalam rangka <span class="text-red-400">*</span></label>
+                <textarea id="bkpt_tugas" name="bkpt_tugas" required rows="3"
+                    placeholder="cth. Rapat Koordinasi Nasional Pemilu Serentak 2024"
+                    class="field-input w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-sm outline-none resize-none"></textarea>
+            </div>
+
+            <div>
+                <label for="bkpt_tanggal" class="block text-sm font-medium text-gray-700 mb-1.5">Pada Tanggal <span class="text-red-400">*</span></label>
+                <input type="date" id="bkpt_tanggal" name="bkpt_tanggal" required
+                    class="field-input w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-sm outline-none" />
+            </div>
+
+            <div>
+                <label for="bkpt_tujuan" class="block text-sm font-medium text-gray-700 mb-1.5">Tempat Tujuan <span class="text-red-400">*</span></label>
+                <input type="text" id="bkpt_tujuan" name="bkpt_tujuan" required placeholder="cth. Jakarta — Gedung KPU RI"
+                    class="field-input w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-sm outline-none" />
+            </div>
+
+            <!-- Upload Bukti Foto -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Upload Bukti Foto <span class="text-red-400">*</span></label>
+                <div id="bkptUploadArea" class="upload-area" onclick="document.getElementById('bkptFotoInput').click()">
+                    <div id="bkptUploadPlaceholder">
+                        <svg class="mx-auto w-10 h-10 text-gray-300 mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                            <path d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21zM8.25 8.625a1.125 1.125 0 100-2.25 1.125 1.125 0 000 2.25z" />
+                        </svg>
+                        <p class="text-sm text-gray-400">Klik atau drag & drop foto di sini</p>
+                        <p class="text-xs text-gray-300 mt-1">JPG, PNG — Maks 2 MB</p>
+                    </div>
+                    <div id="bkptUploadPreview" class="hidden">
+                        <img id="bkptPreviewImg" class="preview-img" src="" alt="Preview" />
+                        <p id="bkptPreviewName" class="text-xs text-gray-500 mt-2"></p>
+                    </div>
+                </div>
+                <input type="file" id="bkptFotoInput" accept="image/jpeg,image/png" class="hidden" onchange="handleBkptFileSelect(this)" />
+                <button type="button" id="btnRemoveBkptPhoto" class="hidden mt-2 text-xs text-red-400 hover:text-red-600 transition" onclick="removeBkptPhoto()">✕ Hapus Foto</button>
+            </div>
+
+            <div class="border-t border-gray-100 pt-2"></div>
+
+            <button type="submit" id="btnSubmitBkpt"
+                class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 text-white text-sm font-semibold shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30 hover:brightness-110 active:scale-[.98] transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:brightness-100">
+                <svg id="btnIconBkpt" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+                <span id="btnTextBkpt">Kirim Bukti Konfirmasi</span>
+            </button>
+        </form>
+    </div>
+</div>
