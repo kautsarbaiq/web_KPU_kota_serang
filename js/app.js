@@ -9,7 +9,7 @@
 // ║  GANTI URL DI BAWAH DENGAN URL WEB APP GOOGLE APPS SCRIPT   ║
 // ║  Contoh: https://script.google.com/macros/s/ABCXYZ/exec     ║
 // ╚══════════════════════════════════════════════════════════════╝
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxEE1Zbw7-XAoh0BsVpZkaxjX7IE6hiaEOK_qn-waSagMiDVr_JwV6iKsOHvFRPF_d-/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzcYWw_ZxEi1dpsLXoWF_8X8g9EwAyh-LI985Kdl_f8i-1evDxFUme8Xb3VgIHlX32n7g/exec';
 
 /* ── Dynamic page definitions ───────────────────────── */
 const PAGE_CONFIG = {
@@ -18,6 +18,7 @@ const PAGE_CONFIG = {
     'sppd-form': { title: 'Buat SPPD', nav: 'nav-sppd', file: 'pages/sppd-form.html', script: 'js/sppd.js' },
     'bkpt-form': { title: 'Bukti Konfirmasi', nav: 'nav-sppd', file: 'pages/bkpt-form.html', script: 'js/bkpt.js' },
     'kuitansi-form': { title: 'Kuitansi', nav: 'nav-sppd', file: 'pages/kuitansi-form.html', script: 'js/kuitansi.js' },
+    'spt-form': { title: 'Surat Perintah', nav: 'nav-sppd', file: 'pages/spt-form.html', script: 'js/spt.js' },
 };
 
 // Track currently loaded script to avoid duplicates

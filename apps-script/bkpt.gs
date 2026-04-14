@@ -4,7 +4,7 @@
  */
 
 function doPostBKPT(data) {
-  const required = ['nama', 'jabatan', 'tugas', 'tanggal', 'tujuan'];
+  const required = ['pejabat_nama', 'pejabat_jabatan', 'pelaksana_nama', 'pelaksana_jabatan', 'tugas', 'tanggal', 'tujuan'];
   for (const field of required) {
     if (!data[field] || String(data[field]).trim() === '') {
       return buildResponse('error', 'Field "' + field + '" wajib diisi.', null);
@@ -29,14 +29,16 @@ function doPostBKPT(data) {
   }
 
   sheet.appendRow([
-    bkptId,                            // A - ID_BKPT
-    timestamp,                         // B - Timestamp
-    (data.nama || '').trim(),          // C - Nama
-    (data.jabatan || '').trim(),       // D - Jabatan
-    (data.tugas || '').trim(),         // E - Tugas
-    data.tanggal,                      // F - Tanggal
-    (data.tujuan || '').trim(),        // G - Tempat_Tujuan
-    fotoLink,                          // H - Link_Foto
+    bkptId,                                     // A - ID_BKPT
+    timestamp,                                  // B - Timestamp
+    (data.pejabat_nama || '').trim(),           // C - Nama_Pejabat
+    (data.pejabat_jabatan || '').trim(),        // D - Jabatan_Pejabat
+    (data.pelaksana_nama || '').trim(),         // E - Nama_Pelaksana
+    (data.pelaksana_jabatan || '').trim(),      // F - Jabatan_Pelaksana
+    (data.tugas || '').trim(),                  // G - Tugas
+    data.tanggal,                               // H - Tanggal
+    (data.tujuan || '').trim(),                 // I - Tempat_Tujuan
+    fotoLink,                                   // J - Link_Foto
   ]);
 
   return buildResponse('success', 'Bukti konfirmasi berhasil disimpan.', bkptId);

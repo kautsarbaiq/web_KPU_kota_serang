@@ -63,8 +63,10 @@ async function submitBKPT(e) {
 
     const payload = {
         action: 'bkpt',
-        nama: document.getElementById('bkpt_nama').value.trim(),
-        jabatan: document.getElementById('bkpt_jabatan').value,
+        pejabat_nama: document.getElementById('bkpt_pejabat_nama').value.trim(),
+        pejabat_jabatan: document.getElementById('bkpt_pejabat_jabatan').value,
+        pelaksana_nama: document.getElementById('bkpt_pelaksana_nama').value.trim(),
+        pelaksana_jabatan: document.getElementById('bkpt_pelaksana_jabatan').value,
         tugas: document.getElementById('bkpt_tugas').value.trim(),
         tanggal: document.getElementById('bkpt_tanggal').value,
         tujuan: document.getElementById('bkpt_tujuan').value.trim(),

@@ -23,6 +23,7 @@ const SPREADSHEET_ID = '1r15-V3wFsyLJiUDNzV0fRK51CTZkpnopByG0GkHXUTU';
 const SHEET_NAME      = 'DATA_SPPD';
 const BKPT_SHEET_NAME = 'Data_BKPT';
 const KWT_SHEET_NAME  = 'Data_Kuitansi';
+const SPT_SHEET_NAME  = 'DATA_SPT';
 
 // Drive folder names (1 fitur = 1 folder foto)
 const FOTO_FOLDER = 'SPPD_Foto';
@@ -43,6 +44,9 @@ function doPost(e) {
     }
     if (data.action === 'kuitansi') {
       return doPostKuitansi(data);
+    }
+    if (data.action === 'spt') {
+      return doPostSPT(data);
     }
 
     // Default: SPPD
@@ -131,7 +135,7 @@ function doPostSPPD(data) {
  * ══════════════════════════════════════════════════════ */
 
 function doPostBKPT(data) {
-  const required = ['nama', 'jabatan', 'tugas', 'tanggal', 'tujuan'];
+  const required = ['pejabat_nama', 'pejabat_jabatan', 'pelaksana_nama', 'pelaksana_jabatan', 'tugas', 'tanggal', 'tujuan'];
   for (const field of required) {
     if (!data[field] || String(data[field]).trim() === '') {
       return buildResponse('error', 'Field "' + field + '" wajib diisi.', null);
@@ -158,8 +162,10 @@ function doPostBKPT(data) {
   sheet.appendRow([
     bkptId,
     timestamp,
-    (data.nama || '').trim(),
-    (data.jabatan || '').trim(),
+    (data.pejabat_nama || '').trim(),
+    (data.pejabat_jabatan || '').trim(),
+    (data.pelaksana_nama || '').trim(),
+    (data.pelaksana_jabatan || '').trim(),
     (data.tugas || '').trim(),
     data.tanggal,
     (data.tujuan || '').trim(),
@@ -216,6 +222,42 @@ function doPostKuitansi(data) {
   return buildResponse('success', 'Kuitansi berhasil disimpan.', kwtId);
 }
 
+/* ══════════════════════════════════════════════════════
+ *  HANDLER: SURAT PERINTAH (SPT) → Sheet "DATA_SPT"
+ * ══════════════════════════════════════════════════════ */
+
+function doPostSPT(data) {
+  const required = ['nomor', 'menimbang', 'dasar', 'kepada', 'untuk'];
+  for (const field of required) {
+    if (!data[field] || String(data[field]).trim() === '') {
+      return buildResponse('error', 'Field "' + field + '" wajib diisi.', null);
+    }
+  }
+
+  const now       = new Date();
+  const datePart  = Utilities.formatDate(now, 'Asia/Jakarta', 'yyyyMMdd');
+  const randChars = generateRandomCode(4);
+  const sptId     = 'SPT-' + datePart + '-' + randChars;
+  const timestamp = Utilities.formatDate(now, 'Asia/Jakarta', 'dd/MM/yyyy HH:mm:ss');
+
+  const ss    = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheet = ss.getSheetByName(SPT_SHEET_NAME);
+  if (!sheet) {
+    return buildResponse('error', 'Sheet "' + SPT_SHEET_NAME + '" tidak ditemukan. Jalankan setupSheet() dulu.', null);
+  }
+
+  sheet.appendRow([
+    sptId,
+    timestamp,
+    (data.nomor || '').trim(),
+    (data.menimbang || '').trim(),
+    (data.dasar || '').trim(),
+    (data.kepada || '').trim(),
+    (data.untuk || '').trim(),
+  ]);
+
+  return buildResponse('success', 'Surat Perintah berhasil disimpan.', sptId);
+}
 
 /* ══════════════════════════════════════════════════════
  *  HELPER FUNCTIONS
@@ -346,7 +388,7 @@ function setupSheet() {
     bkptSheet.clearConditionalFormatRules();
   }
 
-  const bkptHeaders = ['ID_BKPT', 'Timestamp', 'Nama', 'Jabatan', 'Tugas', 'Tanggal', 'Tempat_Tujuan', 'Link_Foto'];
+  const bkptHeaders = ['ID_BKPT', 'Timestamp', 'Nama_Pejabat', 'Jabatan_Pejabat', 'Nama_Pelaksana', 'Jabatan_Pelaksana', 'Tugas', 'Tanggal', 'Tempat_Tujuan', 'Link_Foto'];
   const bkptHeaderRange = bkptSheet.getRange(1, 1, 1, bkptHeaders.length);
   bkptHeaderRange.setValues([bkptHeaders]);
   bkptHeaderRange
@@ -359,7 +401,7 @@ function setupSheet() {
     .setWrap(true);
 
   bkptSheet.setRowHeight(1, 36);
-  const bkptWidths = { 1: 190, 2: 170, 3: 200, 4: 220, 5: 350, 6: 130, 7: 250, 8: 300 };
+  const bkptWidths = { 1: 190, 2: 170, 3: 200, 4: 200, 5: 200, 6: 200, 7: 350, 8: 130, 9: 250, 10: 300 };
   for (const col in bkptWidths) { bkptSheet.setColumnWidth(Number(col), bkptWidths[col]); }
   bkptSheet.setFrozenRows(1);
   const bkptFilterRange = bkptSheet.getRange(1, 1, bkptSheet.getMaxRows(), bkptHeaders.length);
@@ -399,6 +441,40 @@ function setupSheet() {
   kwtFilterRange.createFilter();
 
   Logger.log('✅ Sheet "' + KWT_SHEET_NAME + '" berhasil di-setup!');
+
+  // ─── Sheet 4: DATA_SPT ───────────────────
+  let sptSheet = ss.getSheetByName(SPT_SHEET_NAME);
+  if (!sptSheet) {
+    sptSheet = ss.insertSheet(SPT_SHEET_NAME);
+  } else {
+    sptSheet.clear();
+    sptSheet.clearConditionalFormatRules();
+  }
+
+  const sptHeaders = ['ID_SPT', 'Timestamp', 'Nomor_Surat', 'Menimbang', 'Dasar', 'Memerintahkan_Kepada', 'Untuk'];
+  const sptHeaderRange = sptSheet.getRange(1, 1, 1, sptHeaders.length);
+  sptHeaderRange.setValues([sptHeaders]);
+  sptHeaderRange
+    .setBackground('#4b5563')
+    .setFontColor('#FFFFFF')
+    .setFontWeight('bold')
+    .setFontSize(10)
+    .setHorizontalAlignment('center')
+    .setVerticalAlignment('middle')
+    .setWrap(true);
+
+  sptSheet.setRowHeight(1, 36);
+  const sptWidths = { 1: 190, 2: 170, 3: 250, 4: 400, 5: 400, 6: 400, 7: 400 };
+  for (const col in sptWidths) { sptSheet.setColumnWidth(Number(col), sptWidths[col]); }
+  
+  // Custom wrapping since these textareas contain multi-line text
+  sptSheet.getRange(2, 4, 998, 4).setWrap(true);
+  sptSheet.setFrozenRows(1);
+  const sptFilterRange = sptSheet.getRange(1, 1, sptSheet.getMaxRows(), sptHeaders.length);
+  if (sptSheet.getFilter()) sptSheet.getFilter().remove();
+  sptFilterRange.createFilter();
+
+  Logger.log('✅ Sheet "' + SPT_SHEET_NAME + '" berhasil di-setup!');
 
   // ─── Cleanup ──────────────────────────────────
   ss.rename('e-Office SPPD — KPU Kota Serang');

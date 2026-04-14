@@ -25,27 +25,65 @@
 
         <form id="bkptForm" onsubmit="submitBKPT(event)" class="p-6 md:p-8 space-y-5">
 
-            <div>
-                <label for="bkpt_nama" class="block text-sm font-medium text-gray-700 mb-1.5">Nama <span class="text-red-400">*</span></label>
-                <input type="text" id="bkpt_nama" name="bkpt_nama" required placeholder="cth. Ahmad Fauzi, S.H."
-                    class="field-input w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-sm outline-none" />
+            <!-- Bagian Pejabat Pemberi Perintah -->
+            <div class="mb-2">
+                <h4 class="text-sm font-bold text-navy-700 uppercase tracking-wider mb-3">Pejabat Pemberi Perintah</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="bkpt_pejabat_nama" class="block text-sm font-medium text-gray-700 mb-1.5">Nama Pejabat <span class="text-red-400">*</span></label>
+                        <input type="text" id="bkpt_pejabat_nama" name="bkpt_pejabat_nama" required placeholder="cth. Hendro Sulistyo"
+                            class="field-input w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-sm outline-none" />
+                    </div>
+                    <div>
+                        <label for="bkpt_pejabat_jabatan" class="block text-sm font-medium text-gray-700 mb-1.5">Jabatan Pejabat <span class="text-red-400">*</span></label>
+                        <select id="bkpt_pejabat_jabatan" name="bkpt_pejabat_jabatan" required
+                            class="field-input w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-sm outline-none appearance-none"
+                            style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%236b7280%22 stroke-width=%222%22><polyline points=%226 9 12 15 18 9%22/></svg>'); background-repeat: no-repeat; background-position: right 14px center;">
+                            <option value="" disabled selected>— Pilih Jabatan —</option>
+                            <option value="Ketua">Ketua</option>
+                            <option value="Anggota">Anggota</option>
+                            <option value="Sekretaris">Sekretaris</option>
+                            <option value="Kasubbag">Kasubbag</option>
+                            <option value="Jabatan Fungsional Pranata Keuangan APBN">Jabatan Fungsional Pranata Keuangan APBN</option>
+                            <option value="Pelaksana">Pelaksana</option>
+                            <option value="Pamdal">Pamdal</option>
+                            <option value="Pengemudi">Pengemudi</option>
+                        </select>
+                    </div>
+                </div>
             </div>
 
-            <div>
-                <label for="bkpt_jabatan" class="block text-sm font-medium text-gray-700 mb-1.5">Jabatan <span class="text-red-400">*</span></label>
-                <select id="bkpt_jabatan" name="bkpt_jabatan" required
-                    class="field-input w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-sm outline-none appearance-none"
-                    style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%236b7280%22 stroke-width=%222%22><polyline points=%226 9 12 15 18 9%22/></svg>'); background-repeat: no-repeat; background-position: right 14px center;">
-                    <option value="" disabled selected>— Pilih Jabatan —</option>
-                    <option value="Ketua">Ketua</option>
-                    <option value="Anggota">Anggota</option>
-                    <option value="Sekretaris">Sekretaris</option>
-                    <option value="Kasubbag">Kasubbag</option>
-                    <option value="Jabatan Fungsional Pranata Keuangan APBN">Jabatan Fungsional Pranata Keuangan APBN</option>
-                    <option value="Pelaksana">Pelaksana</option>
-                    <option value="Pamdal">Pamdal</option>
-                    <option value="Pengemudi">Pengemudi</option>
-                </select>
+            <!-- Teks Pemisah -->
+            <div class="bg-blue-50 text-blue-800 text-sm px-4 py-3 rounded-lg border border-blue-100 font-medium">
+                Menyatakan bahwa sesuai dengan Surat tugas yang diberikan kepada:
+            </div>
+
+            <!-- Bagian Pelaksana -->
+            <div class="mb-2">
+                <h4 class="text-sm font-bold text-navy-700 uppercase tracking-wider mb-3">Pelaksana Tugas</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="bkpt_pelaksana_nama" class="block text-sm font-medium text-gray-700 mb-1.5">Nama Pelaksana <span class="text-red-400">*</span></label>
+                        <input type="text" id="bkpt_pelaksana_nama" name="bkpt_pelaksana_nama" required placeholder="cth. Ahmad Fauzi, S.H."
+                            class="field-input w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-sm outline-none" />
+                    </div>
+                    <div>
+                        <label for="bkpt_pelaksana_jabatan" class="block text-sm font-medium text-gray-700 mb-1.5">Jabatan Pelaksana <span class="text-red-400">*</span></label>
+                        <select id="bkpt_pelaksana_jabatan" name="bkpt_pelaksana_jabatan" required
+                            class="field-input w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-sm outline-none appearance-none"
+                            style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%236b7280%22 stroke-width=%222%22><polyline points=%226 9 12 15 18 9%22/></svg>'); background-repeat: no-repeat; background-position: right 14px center;">
+                            <option value="" disabled selected>— Pilih Jabatan —</option>
+                            <option value="Ketua">Ketua</option>
+                            <option value="Anggota">Anggota</option>
+                            <option value="Sekretaris">Sekretaris</option>
+                            <option value="Kasubbag">Kasubbag</option>
+                            <option value="Jabatan Fungsional Pranata Keuangan APBN">Jabatan Fungsional Pranata Keuangan APBN</option>
+                            <option value="Pelaksana">Pelaksana</option>
+                            <option value="Pamdal">Pamdal</option>
+                            <option value="Pengemudi">Pengemudi</option>
+                        </select>
+                    </div>
+                </div>
             </div>
 
             <div>
