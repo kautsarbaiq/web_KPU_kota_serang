@@ -9,7 +9,7 @@
 // ║  GANTI URL DI BAWAH DENGAN URL WEB APP GOOGLE APPS SCRIPT   ║
 // ║  Contoh: https://script.google.com/macros/s/ABCXYZ/exec     ║
 // ╚══════════════════════════════════════════════════════════════╝
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzcYWw_ZxEi1dpsLXoWF_8X8g9EwAyh-LI985Kdl_f8i-1evDxFUme8Xb3VgIHlX32n7g/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzbyyyt5fsJsFLqo7D0rUG7Rup-vjGqBT6Q5b8qiw_XSlQpXTjRPIc5NA8aHxRKX2Ik/exec';
 
 /* ── Dynamic page definitions ───────────────────────── */
 const PAGE_CONFIG = {
@@ -19,6 +19,7 @@ const PAGE_CONFIG = {
     'bkpt-form': { title: 'Bukti Konfirmasi', nav: 'nav-sppd', file: 'pages/bkpt-form.html', script: 'js/bkpt.js' },
     'kuitansi-form': { title: 'Kuitansi', nav: 'nav-sppd', file: 'pages/kuitansi-form.html', script: 'js/kuitansi.js' },
     'spt-form': { title: 'Surat Perintah', nav: 'nav-sppd', file: 'pages/spt-form.html', script: 'js/spt.js' },
+    'laporan-form': { title: 'Laporan Perjalanan Dinas', nav: 'nav-sppd', file: 'pages/laporan-form.html', script: 'js/laporan.js' },
 };
 
 // Track currently loaded script to avoid duplicates
