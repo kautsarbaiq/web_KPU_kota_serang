@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>e-Office KPU Kota Serang — Portal SPPD</title>
+    <title>e-Office KPU Kota Serang — Portal Pegawai</title>
     <meta name="description" content="Portal Input Surat Perintah Perjalanan Dinas (SPPD) KPU Kota Serang" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -78,8 +78,17 @@
         </nav>
 
         <!-- Footer -->
-        <div class="px-6 py-4 border-t border-white/10 text-[11px] text-blue-300/50 leading-relaxed">
-            &copy; 2026 KPU Kota Serang<br>Portal Pegawai
+        <div class="px-3 py-4 border-t border-white/10">
+            <button onclick="AuthManager.logout()"
+                class="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-red-300 hover:bg-red-500/10 transition">
+                <svg class="w-5 h-5 opacity-70" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                Logout
+            </button>
+            <div class="px-4 mt-3 text-[11px] text-blue-300/50 leading-relaxed">
+                &copy; 2026 KPU Kota Serang<br>Portal Pegawai
+            </div>
         </div>
     </aside>
 
@@ -103,10 +112,10 @@
             </div>
             <div class="flex items-center gap-3">
                 <div class="text-right hidden sm:block">
-                    <p class="text-sm font-medium text-gray-700">Pegawai</p>
-                    <p class="text-[11px] text-gray-400">User</p>
+                    <p class="text-sm font-medium text-gray-700" id="headerUserName">Pegawai</p>
+                    <p class="text-[11px] text-gray-400" id="headerUserRole">User</p>
                 </div>
-                <div
+                <div id="headerUserAvatar"
                     class="w-9 h-9 rounded-full bg-gradient-to-br from-navy-600 to-blue-500 flex items-center justify-center text-white text-sm font-bold shadow">
                     P</div>
             </div>
@@ -203,6 +212,20 @@
                         <h4 class="font-semibold text-navy-800 mb-1">Surat Perintah</h4>
                         <p class="text-xs text-gray-400 leading-relaxed">Buat dokumen Surat Perintah Tugas (SPT) pegawai</p>
                     </button>
+
+                    <!-- Card: Laporan Perjalanan Dinas -->
+                    <button onclick="showPage('laporan-form')"
+                        class="group bg-white rounded-2xl border border-gray-100 shadow-sm p-6 text-left hover:shadow-md hover:border-rose-200 hover:-translate-y-1 transition-all duration-200">
+                        <div
+                            class="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center mb-4 shadow-lg shadow-rose-500/20 group-hover:scale-105 transition-transform">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2"
+                                viewBox="0 0 24 24">
+                                <path d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                        </div>
+                        <h4 class="font-semibold text-navy-800 mb-1">Laporan Perjalanan</h4>
+                        <p class="text-xs text-gray-400 leading-relaxed">Buat laporan hasil perjalanan dinas lengkap</p>
+                    </button>
                 </div>
             </div>
         </section>
@@ -216,7 +239,32 @@
     <div id="toastContainer"></div>
 
     <!-- ═══════════════════════════ JAVASCRIPT ═══════════════════════════ -->
+    <script src="js/auth.js"></script>
     <script src="js/app.js"></script>
+    <script>
+        // Session guard — redirect to login if not logged in
+        (function() {
+            if (!AuthManager.isLoggedIn()) {
+                window.location.href = 'login.html';
+                return;
+            }
+            // If admin, redirect to admin dashboard
+            const user = AuthManager.getCurrentUser();
+            if (user && user.role === 'admin') {
+                window.location.href = 'admin.html';
+                return;
+            }
+            // Update header with user info
+            const nameEl = document.getElementById('headerUserName');
+            const roleEl = document.getElementById('headerUserRole');
+            const avatarEl = document.getElementById('headerUserAvatar');
+            if (user) {
+                if (nameEl) nameEl.textContent = user.name || 'Pegawai';
+                if (roleEl) roleEl.textContent = user.role === 'admin' ? 'Administrator' : 'Karyawan';
+                if (avatarEl) avatarEl.textContent = (user.name || 'P').charAt(0).toUpperCase();
+            }
+        })();
+    </script>
 
 </body>
 

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login — e-Office KPU Kota Serang</title>
+    <meta name="description" content="Portal Login e-Office KPU Kota Serang" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="css/auth.css" />
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+        body { font-family: 'Inter', system-ui, sans-serif; margin: 0; }
+    </style>
+</head>
+
+<body>
+    <div class="auth-bg">
+        <div class="auth-card">
+            <!-- Logo -->
+            <div class="logo-section">
+                <div class="logo-icon">
+                    <svg width="28" height="28" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                    </svg>
+                </div>
+                <h1>e-Office</h1>
+                <p class="subtitle">KPU Kota Serang — Portal Login</p>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm" onsubmit="handleLogin(event)" novalidate>
+                <!-- Email -->
+                <div class="auth-field">
+                    <label for="loginEmail">Email</label>
+                    <div class="auth-input-wrapper">
+                        <input id="loginEmail" type="email" class="auth-input" placeholder="nama@email.com"
+                            autocomplete="email" required />
+                        <svg class="input-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <div class="auth-error" id="emailError">
+                        <svg width="14" height="14" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+                        <span></span>
+                    </div>
+                </div>
+
+                <!-- Password -->
+                <div class="auth-field">
+                    <label for="loginPassword">Password</label>
+                    <div class="auth-input-wrapper">
+                        <input id="loginPassword" type="password" class="auth-input" placeholder="••••••••"
+                            autocomplete="current-password" required />
+                        <svg class="input-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                        <button type="button" class="toggle-password" onclick="togglePasswordVisibility()" tabindex="-1">
+                            <svg id="eyeIcon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="auth-error" id="passwordError">
+                        <svg width="14" height="14" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+                        <span></span>
+                    </div>
+                </div>
+
+                <!-- General Error -->
+                <div class="auth-error" id="generalError" style="margin-bottom: 8px;">
+                    <svg width="14" height="14" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+                    <span></span>
+                </div>
+
+                <!-- Submit -->
+                <button type="submit" class="auth-btn" id="btnLogin">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" id="btnLoginIcon">
+                        <path d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                    </svg>
+                    <span id="btnLoginText">Masuk</span>
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                &copy; 2026 KPU Kota Serang — Portal Pegawai
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ── Config ──
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzbyyyt5fsJsFLqo7D0rUG7Rup-vjGqBT6Q5b8qiw_XSlQpXTjRPIc5NA8aHxRKX2Ik/exec';
+    </script>
+    <script src="js/auth.js"></script>
+    <script>
+        // ── Redirect if already logged in ──
+        (function() {
+            if (AuthManager.isLoggedIn()) {
+                const user = AuthManager.getCurrentUser();
+                if (user.role === 'admin') {
+                    window.location.href = 'admin.html';
+                } else {
+                    window.location.href = 'index.html';
+                }
+            }
+        })();
+
+        // ── Toggle password visibility ──
+        function togglePasswordVisibility() {
+            const input = document.getElementById('loginPassword');
+            const icon = document.getElementById('eyeIcon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.innerHTML = '<path d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />';
+            } else {
+                input.type = 'password';
+                icon.innerHTML = '<path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />';
+            }
+        }
+
+        // ── Clear error on input ──
+        document.getElementById('loginEmail').addEventListener('input', () => clearError('emailError'));
+        document.getElementById('loginPassword').addEventListener('input', () => clearError('passwordError'));
+
+        function clearError(id) {
+            const el = document.getElementById(id);
+            el.classList.remove('show');
+        }
+
+        function showError(id, msg) {
+            const el = document.getElementById(id);
+            el.querySelector('span').textContent = msg;
+            el.classList.add('show');
+        }
+
+        // ── Handle Login ──
+        async function handleLogin(e) {
+            e.preventDefault();
+
+            // Reset errors
+            clearError('emailError');
+            clearError('passwordError');
+            clearError('generalError');
+
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            // Validate
+            let hasError = false;
+            if (!email) {
+                showError('emailError', 'Email wajib diisi.');
+                hasError = true;
+            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                showError('emailError', 'Format email tidak valid.');
+                hasError = true;
+            }
+
+            if (!password) {
+                showError('passwordError', 'Password wajib diisi.');
+                hasError = true;
+            } else if (password.length < 6) {
+                showError('passwordError', 'Password minimal 6 karakter.');
+                hasError = true;
+            }
+
+            if (hasError) return;
+
+            // Show loading
+            const btn = document.getElementById('btnLogin');
+            const btnText = document.getElementById('btnLoginText');
+            const btnIcon = document.getElementById('btnLoginIcon');
+            btn.disabled = true;
+            btnIcon.style.display = 'none';
+            btnText.textContent = 'Memproses…';
+            const spinner = document.createElement('div');
+            spinner.className = 'btn-spinner';
+            btn.insertBefore(spinner, btn.firstChild);
+
+            // Login
+            const result = await AuthManager.login(email, password);
+
+            if (result.success) {
+                btnText.textContent = 'Berhasil! Mengalihkan…';
+                setTimeout(() => {
+                    if (result.user.role === 'admin') {
+                        window.location.href = 'admin.html';
+                    } else {
+                        window.location.href = 'index.html';
+                    }
+                }, 500);
+            } else {
+                // Reset button
+                spinner.remove();
+                btn.disabled = false;
+                btnIcon.style.display = '';
+                btnText.textContent = 'Masuk';
+                showError('generalError', result.message);
+            }
+        }
+    </script>
+</body>
+
+</html>
