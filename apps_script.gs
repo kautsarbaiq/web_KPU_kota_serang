@@ -7,9 +7,10 @@
  *  2. Paste di Google Apps Script editor (hapus kode lama dulu)
  *  3. Klik Save (Ctrl+S)
  *  4. Pilih fungsi "setupSheet" → Klik Run → Otorisasi
- *  5. Pilih fungsi "triggerDriveAuth" → Klik Run → Otorisasi
- *  6. Deploy → New Deployment → Web App → Anyone → Deploy
- *  7. Copy URL dan paste di js/app.js
+ *  5. Pilih fungsi "seedAdmin" → Klik Run
+ *  6. Pilih fungsi "triggerDriveAuth" → Klik Run → Otorisasi
+ *  7. Deploy → New Deployment → Web App → Anyone → Deploy
+ *  8. Copy URL dan paste di js/app.js, login.html, admin.html
  * ═══════════════════════════════════════════════════════════════
  */
 
@@ -24,11 +25,17 @@ const SHEET_NAME      = 'DATA_SPPD';
 const BKPT_SHEET_NAME = 'Data_BKPT';
 const KWT_SHEET_NAME  = 'Data_Kuitansi';
 const SPT_SHEET_NAME  = 'DATA_SPT';
+const LPD_SHEET_NAME  = 'Data_Laporan';
+
+// Auth sheets
+const ACCOUNTS_SHEET  = 'Accounts';
+const SESSIONS_SHEET  = 'Sessions';
 
 // Drive folder names (1 fitur = 1 folder foto)
 const FOTO_FOLDER = 'SPPD_Foto';
 const BKPT_FOLDER = 'BKPT_Foto';
 const KWT_FOLDER  = 'Kuitansi_Foto';
+const LPD_FOLDER  = 'Laporan_Foto';
 
 
 /* ══════════════════════════════════════════════════════
@@ -39,15 +46,24 @@ function doPost(e) {
   try {
     const data = JSON.parse(e.postData.contents);
 
-    if (data.action === 'bkpt') {
-      return doPostBKPT(data);
-    }
-    if (data.action === 'kuitansi') {
-      return doPostKuitansi(data);
-    }
-    if (data.action === 'spt') {
-      return doPostSPT(data);
-    }
+    // ── Auth Actions ──
+    if (data.action === 'login')            return doLogin(data);
+    if (data.action === 'logout')           return doLogout(data);
+    if (data.action === 'validate_session') return doValidateSession(data);
+
+    // ── Admin Actions ──
+    if (data.action === 'get_dashboard_stats') return doGetDashboardStats(data);
+    if (data.action === 'get_sheet_data')      return doGetSheetData(data);
+    if (data.action === 'admin_delete')        return doAdminDelete(data);
+    if (data.action === 'get_accounts')        return doGetAccounts(data);
+    if (data.action === 'create_account')      return doCreateAccount(data);
+    if (data.action === 'delete_account')      return doDeleteAccount(data);
+
+    // ── Data Actions (existing) ──
+    if (data.action === 'bkpt')     return doPostBKPT(data);
+    if (data.action === 'kuitansi') return doPostKuitansi(data);
+    if (data.action === 'spt')      return doPostSPT(data);
+    if (data.action === 'laporan')  return doPostLaporan(data);
 
     // Default: SPPD
     return doPostSPPD(data);
@@ -61,9 +77,410 @@ function doGet() {
   return ContentService
     .createTextOutput(JSON.stringify({
       status:  'ok',
-      message: 'e-Office SPPD API v3 aktif. Gunakan POST untuk mengirim data.',
+      message: 'e-Office KPU Kota Serang API v4 aktif. Gunakan POST untuk mengirim data.',
     }))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+
+/* ══════════════════════════════════════════════════════
+ *  AUTH: Password Hashing (SHA-256)
+ * ══════════════════════════════════════════════════════ */
+
+function hashPassword(password) {
+  const rawHash = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, password);
+  return rawHash.map(function(byte) {
+    let hex = (byte < 0 ? byte + 256 : byte).toString(16);
+    return hex.length === 1 ? '0' + hex : hex;
+  }).join('');
+}
+
+function generateSessionToken() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let token = '';
+  for (let i = 0; i < 32; i++) {
+    token += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return token;
+}
+
+
+/* ══════════════════════════════════════════════════════
+ *  AUTH: Login
+ * ══════════════════════════════════════════════════════ */
+
+function doLogin(data) {
+  if (!data.email || !data.password) {
+    return buildResponse('error', 'Email dan password wajib diisi.', null);
+  }
+
+  const email = String(data.email).trim().toLowerCase();
+  const passwordHash = hashPassword(data.password);
+
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheet = ss.getSheetByName(ACCOUNTS_SHEET);
+  if (!sheet) {
+    return buildResponse('error', 'Sheet Accounts belum dibuat. Jalankan setupSheet() dulu.', null);
+  }
+
+  const allData = sheet.getDataRange().getValues();
+  let foundUser = null;
+
+  for (let i = 1; i < allData.length; i++) {
+    const row = allData[i];
+    // Columns: id, name, email, password, role, created_at
+    if (String(row[2]).trim().toLowerCase() === email && String(row[3]) === passwordHash) {
+      foundUser = {
+        id:    row[0],
+        name:  row[1],
+        email: row[2],
+        role:  row[4],
+      };
+      break;
+    }
+  }
+
+  if (!foundUser) {
+    return buildResponse('error', 'Email atau password salah.', null);
+  }
+
+  // Create session
+  const token = generateSessionToken();
+  const now = new Date();
+  const timestamp = Utilities.formatDate(now, 'Asia/Jakarta', 'dd/MM/yyyy HH:mm:ss');
+
+  const sessSheet = ss.getSheetByName(SESSIONS_SHEET);
+  if (!sessSheet) {
+    return buildResponse('error', 'Sheet Sessions belum dibuat. Jalankan setupSheet() dulu.', null);
+  }
+
+  sessSheet.appendRow([
+    token,
+    foundUser.id,
+    foundUser.email,
+    foundUser.role,
+    foundUser.name,
+    timestamp,
+  ]);
+
+  const body = {
+    status: 'success',
+    message: 'Login berhasil.',
+    token: token,
+    user: foundUser,
+  };
+
+  return ContentService
+    .createTextOutput(JSON.stringify(body))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+
+/* ══════════════════════════════════════════════════════
+ *  AUTH: Logout
+ * ══════════════════════════════════════════════════════ */
+
+function doLogout(data) {
+  if (!data.session_token) {
+    return buildResponse('success', 'Logout berhasil.', null);
+  }
+
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sessSheet = ss.getSheetByName(SESSIONS_SHEET);
+  if (!sessSheet) return buildResponse('success', 'Logout berhasil.', null);
+
+  const allData = sessSheet.getDataRange().getValues();
+  for (let i = allData.length - 1; i >= 1; i--) {
+    if (String(allData[i][0]) === String(data.session_token)) {
+      sessSheet.deleteRow(i + 1);
+      break;
+    }
+  }
+
+  return buildResponse('success', 'Logout berhasil.', null);
+}
+
+
+/* ══════════════════════════════════════════════════════
+ *  AUTH: Validate Session
+ * ══════════════════════════════════════════════════════ */
+
+function doValidateSession(data) {
+  const user = validateSession_(data.session_token);
+  if (!user) {
+    return buildResponse('error', 'Session tidak valid atau sudah expired.', null);
+  }
+  return buildResponse('success', 'Session valid.', null);
+}
+
+/**
+ * Internal session validator
+ * Returns user object or null
+ */
+function validateSession_(token) {
+  if (!token) return null;
+
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sessSheet = ss.getSheetByName(SESSIONS_SHEET);
+  if (!sessSheet) return null;
+
+  const allData = sessSheet.getDataRange().getValues();
+  for (let i = 1; i < allData.length; i++) {
+    if (String(allData[i][0]) === String(token)) {
+      return {
+        id:    allData[i][1],
+        email: allData[i][2],
+        role:  allData[i][3],
+        name:  allData[i][4],
+      };
+    }
+  }
+  return null;
+}
+
+/**
+ * Require admin role — returns user or sends error response
+ */
+function requireAdmin_(data) {
+  const user = validateSession_(data.session_token);
+  if (!user) return null;
+  if (user.role !== 'admin') return null;
+  return user;
+}
+
+
+/* ══════════════════════════════════════════════════════
+ *  ADMIN: Dashboard Stats
+ * ══════════════════════════════════════════════════════ */
+
+function doGetDashboardStats(data) {
+  const admin = requireAdmin_(data);
+  if (!admin) {
+    return buildResponse('error', 'Session tidak valid atau bukan admin.', null);
+  }
+
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+
+  function countRows(sheetName) {
+    const sheet = ss.getSheetByName(sheetName);
+    if (!sheet) return 0;
+    const lastRow = sheet.getLastRow();
+    return lastRow > 1 ? lastRow - 1 : 0;
+  }
+
+  const stats = {
+    sppd:     countRows(SHEET_NAME),
+    bkpt:     countRows(BKPT_SHEET_NAME),
+    kuitansi: countRows(KWT_SHEET_NAME),
+    spt:      countRows(SPT_SHEET_NAME),
+    laporan:  countRows(LPD_SHEET_NAME),
+  };
+
+  const body = { status: 'success', stats: stats };
+  return ContentService
+    .createTextOutput(JSON.stringify(body))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+
+/* ══════════════════════════════════════════════════════
+ *  ADMIN: Get Sheet Data
+ * ══════════════════════════════════════════════════════ */
+
+function doGetSheetData(data) {
+  const admin = requireAdmin_(data);
+  if (!admin) {
+    return buildResponse('error', 'Session tidak valid atau bukan admin.', null);
+  }
+
+  const sheetName = data.sheet_name;
+  const allowedSheets = [SHEET_NAME, BKPT_SHEET_NAME, KWT_SHEET_NAME, SPT_SHEET_NAME, LPD_SHEET_NAME];
+  if (!allowedSheets.includes(sheetName)) {
+    return buildResponse('error', 'Sheet tidak diizinkan.', null);
+  }
+
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheet = ss.getSheetByName(sheetName);
+  if (!sheet) {
+    return buildResponse('error', 'Sheet "' + sheetName + '" tidak ditemukan.', null);
+  }
+
+  const lastRow = sheet.getLastRow();
+  if (lastRow <= 1) {
+    const body = { status: 'success', data: [] };
+    return ContentService
+      .createTextOutput(JSON.stringify(body))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  const dataRange = sheet.getRange(2, 1, lastRow - 1, sheet.getLastColumn());
+  const values = dataRange.getValues();
+
+  const body = { status: 'success', data: values };
+  return ContentService
+    .createTextOutput(JSON.stringify(body))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+
+/* ══════════════════════════════════════════════════════
+ *  ADMIN: Delete Data Row
+ * ══════════════════════════════════════════════════════ */
+
+function doAdminDelete(data) {
+  const admin = requireAdmin_(data);
+  if (!admin) {
+    return buildResponse('error', 'Session tidak valid atau bukan admin.', null);
+  }
+
+  const sheetName = data.sheet_name;
+  const rowId = data.row_id;
+
+  if (!sheetName || !rowId) {
+    return buildResponse('error', 'Sheet name dan row ID wajib diisi.', null);
+  }
+
+  const allowedSheets = [SHEET_NAME, BKPT_SHEET_NAME, KWT_SHEET_NAME, SPT_SHEET_NAME, LPD_SHEET_NAME];
+  if (!allowedSheets.includes(sheetName)) {
+    return buildResponse('error', 'Sheet tidak diizinkan.', null);
+  }
+
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheet = ss.getSheetByName(sheetName);
+  if (!sheet) {
+    return buildResponse('error', 'Sheet tidak ditemukan.', null);
+  }
+
+  const allData = sheet.getDataRange().getValues();
+  for (let i = allData.length - 1; i >= 1; i--) {
+    if (String(allData[i][0]) === String(rowId)) {
+      sheet.deleteRow(i + 1);
+      return buildResponse('success', 'Data berhasil dihapus.', null);
+    }
+  }
+
+  return buildResponse('error', 'Data dengan ID "' + rowId + '" tidak ditemukan.', null);
+}
+
+
+/* ══════════════════════════════════════════════════════
+ *  ADMIN: Account Management
+ * ══════════════════════════════════════════════════════ */
+
+function doGetAccounts(data) {
+  const admin = requireAdmin_(data);
+  if (!admin) {
+    return buildResponse('error', 'Session tidak valid atau bukan admin.', null);
+  }
+
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheet = ss.getSheetByName(ACCOUNTS_SHEET);
+  if (!sheet) {
+    return buildResponse('error', 'Sheet Accounts tidak ditemukan.', null);
+  }
+
+  const lastRow = sheet.getLastRow();
+  if (lastRow <= 1) {
+    const body = { status: 'success', accounts: [] };
+    return ContentService
+      .createTextOutput(JSON.stringify(body))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  const allData = sheet.getRange(2, 1, lastRow - 1, 6).getValues();
+  // Remove password column (index 3) for security
+  const safe = allData.map(function(row) {
+    return [row[0], row[1], row[2], '***', row[4], row[5]];
+  });
+
+  const body = { status: 'success', accounts: safe };
+  return ContentService
+    .createTextOutput(JSON.stringify(body))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function doCreateAccount(data) {
+  const admin = requireAdmin_(data);
+  if (!admin) {
+    return buildResponse('error', 'Session tidak valid atau bukan admin.', null);
+  }
+
+  if (!data.name || !data.email || !data.password || !data.role) {
+    return buildResponse('error', 'Semua field wajib diisi.', null);
+  }
+
+  if (data.role !== 'admin' && data.role !== 'user') {
+    return buildResponse('error', 'Role harus "admin" atau "user".', null);
+  }
+
+  if (String(data.password).length < 6) {
+    return buildResponse('error', 'Password minimal 6 karakter.', null);
+  }
+
+  const email = String(data.email).trim().toLowerCase();
+
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheet = ss.getSheetByName(ACCOUNTS_SHEET);
+  if (!sheet) {
+    return buildResponse('error', 'Sheet Accounts tidak ditemukan.', null);
+  }
+
+  // Check email uniqueness
+  const allData = sheet.getDataRange().getValues();
+  for (let i = 1; i < allData.length; i++) {
+    if (String(allData[i][2]).trim().toLowerCase() === email) {
+      return buildResponse('error', 'Email "' + email + '" sudah terdaftar.', null);
+    }
+  }
+
+  const now = new Date();
+  const datePart = Utilities.formatDate(now, 'Asia/Jakarta', 'yyyyMMdd');
+  const randChars = generateRandomCode(4);
+  const accId = 'ACC-' + datePart + '-' + randChars;
+  const timestamp = Utilities.formatDate(now, 'Asia/Jakarta', 'dd/MM/yyyy HH:mm:ss');
+
+  sheet.appendRow([
+    accId,
+    String(data.name).trim(),
+    email,
+    hashPassword(data.password),
+    data.role,
+    timestamp,
+  ]);
+
+  return buildResponse('success', 'Akun berhasil dibuat.', accId);
+}
+
+function doDeleteAccount(data) {
+  const admin = requireAdmin_(data);
+  if (!admin) {
+    return buildResponse('error', 'Session tidak valid atau bukan admin.', null);
+  }
+
+  if (!data.account_id) {
+    return buildResponse('error', 'Account ID wajib diisi.', null);
+  }
+
+  // Prevent admin from deleting their own account
+  if (data.account_id === admin.id) {
+    return buildResponse('error', 'Tidak dapat menghapus akun sendiri.', null);
+  }
+
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheet = ss.getSheetByName(ACCOUNTS_SHEET);
+  if (!sheet) {
+    return buildResponse('error', 'Sheet Accounts tidak ditemukan.', null);
+  }
+
+  const allData = sheet.getDataRange().getValues();
+  for (let i = allData.length - 1; i >= 1; i--) {
+    if (String(allData[i][0]) === String(data.account_id)) {
+      sheet.deleteRow(i + 1);
+      return buildResponse('success', 'Akun berhasil dihapus.', null);
+    }
+  }
+
+  return buildResponse('error', 'Akun tidak ditemukan.', null);
 }
 
 
@@ -259,6 +676,62 @@ function doPostSPT(data) {
   return buildResponse('success', 'Surat Perintah berhasil disimpan.', sptId);
 }
 
+
+/* ══════════════════════════════════════════════════════
+ *  HANDLER: LAPORAN PERJALANAN DINAS → Sheet "Data_Laporan"
+ * ══════════════════════════════════════════════════════ */
+
+function doPostLaporan(data) {
+  const required = ['surat_tugas', 'nomor_surat', 'tanggal_surat', 'maksud_tujuan', 'tempat', 'hari_tanggal', 'hasil'];
+  for (const field of required) {
+    if (!data[field] || String(data[field]).trim() === '') {
+      return buildResponse('error', 'Field "' + field + '" wajib diisi.', null);
+    }
+  }
+
+  const now       = new Date();
+  const datePart  = Utilities.formatDate(now, 'Asia/Jakarta', 'yyyyMMdd');
+  const randChars = generateRandomCode(4);
+  const lpdId     = 'LPD-' + datePart + '-' + randChars;
+  const timestamp = Utilities.formatDate(now, 'Asia/Jakarta', 'dd/MM/yyyy HH:mm:ss');
+
+  // Handle multiple photos
+  const fotoLinks = [];
+  const fotos = data.fotos || [];
+  const fotoNames = data.foto_names || [];
+  for (let i = 0; i < fotos.length; i++) {
+    if (fotos[i] && fotos[i].length > 0) {
+      const fname = (fotoNames[i] || ('foto_' + (i + 1) + '.jpg'));
+      const link = savePhotoToDrive(fotos[i], fname, lpdId + '_' + (i + 1), LPD_FOLDER);
+      fotoLinks.push(link);
+    }
+  }
+
+  const ss    = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheet = ss.getSheetByName(LPD_SHEET_NAME);
+  if (!sheet) {
+    return buildResponse('error', 'Sheet "' + LPD_SHEET_NAME + '" tidak ditemukan. Jalankan setupSheet() dulu.', null);
+  }
+
+  sheet.appendRow([
+    lpdId,
+    timestamp,
+    (data.surat_tugas || '').trim(),
+    (data.nomor_surat || '').trim(),
+    data.tanggal_surat,
+    (data.maksud_tujuan || '').trim(),
+    (data.materi || '').trim(),
+    (data.tempat || '').trim(),
+    (data.hari_tanggal || '').trim(),
+    (data.hasil || '').trim(),
+    (data.pembuat || '').trim(),
+    fotoLinks.join('\n'),
+  ]);
+
+  return buildResponse('success', 'Laporan perjalanan dinas berhasil disimpan.', lpdId);
+}
+
+
 /* ══════════════════════════════════════════════════════
  *  HELPER FUNCTIONS
  * ══════════════════════════════════════════════════════ */
@@ -305,7 +778,7 @@ function triggerDriveAuth() {
 
 
 /* ══════════════════════════════════════════════════════
- *  SETUP SHEET — Jalankan SEKALI untuk buat 3 sheet
+ *  SETUP SHEET — Jalankan SEKALI untuk buat semua sheet
  *
  *  Cara: Pilih fungsi "setupSheet" → Klik ▶ Run
  * ══════════════════════════════════════════════════════ */
@@ -476,6 +949,107 @@ function setupSheet() {
 
   Logger.log('✅ Sheet "' + SPT_SHEET_NAME + '" berhasil di-setup!');
 
+  // ─── Sheet 5: Data_Laporan ───────────────────
+  let lpdSheet = ss.getSheetByName(LPD_SHEET_NAME);
+  if (!lpdSheet) {
+    lpdSheet = ss.insertSheet(LPD_SHEET_NAME);
+  } else {
+    lpdSheet.clear();
+    lpdSheet.clearConditionalFormatRules();
+  }
+
+  const lpdHeaders = [
+    'ID_Laporan', 'Timestamp', 'Surat_Tugas', 'Nomor_Surat', 'Tanggal_Surat',
+    'Maksud_Tujuan', 'Materi', 'Tempat_Pelaksanaan', 'Hari_Tanggal',
+    'Hasil_Pelaksanaan', 'Pembuat_Laporan', 'Link_Foto'
+  ];
+  const lpdHeaderRange = lpdSheet.getRange(1, 1, 1, lpdHeaders.length);
+  lpdHeaderRange.setValues([lpdHeaders]);
+  lpdHeaderRange
+    .setBackground('#9f1239')
+    .setFontColor('#FFFFFF')
+    .setFontWeight('bold')
+    .setFontSize(10)
+    .setHorizontalAlignment('center')
+    .setVerticalAlignment('middle')
+    .setWrap(true);
+
+  lpdSheet.setRowHeight(1, 36);
+  const lpdWidths = {
+    1: 190, 2: 170, 3: 250, 4: 250, 5: 140,
+    6: 350, 7: 350, 8: 250, 9: 220,
+    10: 400, 11: 300, 12: 350
+  };
+  for (const col in lpdWidths) { lpdSheet.setColumnWidth(Number(col), lpdWidths[col]); }
+
+  // Wrap text for long content columns
+  lpdSheet.getRange(2, 6, 998, 1).setWrap(true);  // Maksud_Tujuan
+  lpdSheet.getRange(2, 7, 998, 1).setWrap(true);  // Materi
+  lpdSheet.getRange(2, 10, 998, 1).setWrap(true); // Hasil_Pelaksanaan
+  lpdSheet.getRange(2, 11, 998, 1).setWrap(true); // Pembuat_Laporan
+  lpdSheet.getRange(2, 12, 998, 1).setWrap(true); // Link_Foto
+
+  lpdSheet.setFrozenRows(1);
+  const lpdFilterRange = lpdSheet.getRange(1, 1, lpdSheet.getMaxRows(), lpdHeaders.length);
+  if (lpdSheet.getFilter()) lpdSheet.getFilter().remove();
+  lpdFilterRange.createFilter();
+
+  Logger.log('✅ Sheet "' + LPD_SHEET_NAME + '" berhasil di-setup!');
+
+  // ─── Sheet 6: Accounts ───────────────────────
+  let accSheet = ss.getSheetByName(ACCOUNTS_SHEET);
+  if (!accSheet) {
+    accSheet = ss.insertSheet(ACCOUNTS_SHEET);
+  } else {
+    accSheet.clear();
+  }
+
+  const accHeaders = ['ID', 'Name', 'Email', 'Password', 'Role', 'Created_At'];
+  const accHeaderRange = accSheet.getRange(1, 1, 1, accHeaders.length);
+  accHeaderRange.setValues([accHeaders]);
+  accHeaderRange
+    .setBackground('#7c3aed')
+    .setFontColor('#FFFFFF')
+    .setFontWeight('bold')
+    .setFontSize(10)
+    .setHorizontalAlignment('center')
+    .setVerticalAlignment('middle')
+    .setWrap(true);
+
+  accSheet.setRowHeight(1, 36);
+  const accWidths = { 1: 190, 2: 200, 3: 250, 4: 400, 5: 100, 6: 170 };
+  for (const col in accWidths) { accSheet.setColumnWidth(Number(col), accWidths[col]); }
+  accSheet.setFrozenRows(1);
+
+  Logger.log('✅ Sheet "' + ACCOUNTS_SHEET + '" berhasil di-setup!');
+
+  // ─── Sheet 7: Sessions ───────────────────────
+  let sessSheet = ss.getSheetByName(SESSIONS_SHEET);
+  if (!sessSheet) {
+    sessSheet = ss.insertSheet(SESSIONS_SHEET);
+  } else {
+    sessSheet.clear();
+  }
+
+  const sessHeaders = ['Token', 'Account_ID', 'Email', 'Role', 'Name', 'Created_At'];
+  const sessHeaderRange = sessSheet.getRange(1, 1, 1, sessHeaders.length);
+  sessHeaderRange.setValues([sessHeaders]);
+  sessHeaderRange
+    .setBackground('#0891b2')
+    .setFontColor('#FFFFFF')
+    .setFontWeight('bold')
+    .setFontSize(10)
+    .setHorizontalAlignment('center')
+    .setVerticalAlignment('middle')
+    .setWrap(true);
+
+  sessSheet.setRowHeight(1, 36);
+  const sessWidths = { 1: 350, 2: 190, 3: 250, 4: 100, 5: 200, 6: 170 };
+  for (const col in sessWidths) { sessSheet.setColumnWidth(Number(col), sessWidths[col]); }
+  sessSheet.setFrozenRows(1);
+
+  Logger.log('✅ Sheet "' + SESSIONS_SHEET + '" berhasil di-setup!');
+
   // ─── Cleanup ──────────────────────────────────
   ss.rename('e-Office SPPD — KPU Kota Serang');
   const defaultSheet = ss.getSheetByName('Sheet1');
@@ -484,4 +1058,56 @@ function setupSheet() {
   }
 
   Logger.log('🎉 SEMUA SHEET BERHASIL DI-SETUP!');
+}
+
+
+/* ══════════════════════════════════════════════════════
+ *  SEED ADMIN — Jalankan SEKALI untuk buat akun admin pertama
+ *
+ *  Default: admin@kpu-serang.go.id / Admin@123
+ * ══════════════════════════════════════════════════════ */
+
+function seedAdmin() {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheet = ss.getSheetByName(ACCOUNTS_SHEET);
+  if (!sheet) {
+    Logger.log('❌ Sheet Accounts belum ada. Jalankan setupSheet() dulu!');
+    return;
+  }
+
+  // Check if admin already exists
+  const allData = sheet.getDataRange().getValues();
+  for (let i = 1; i < allData.length; i++) {
+    if (String(allData[i][2]).trim().toLowerCase() === 'admin@kpu-serang.go.id') {
+      Logger.log('⚠️ Admin sudah ada! Tidak perlu seed lagi.');
+      return;
+    }
+  }
+
+  const now = new Date();
+  const timestamp = Utilities.formatDate(now, 'Asia/Jakarta', 'dd/MM/yyyy HH:mm:ss');
+
+  // Create admin account
+  sheet.appendRow([
+    'ACC-ADMIN-0001',
+    'Admin KPU',
+    'admin@kpu-serang.go.id',
+    hashPassword('Admin@123'),
+    'admin',
+    timestamp,
+  ]);
+
+  // Create default user account
+  sheet.appendRow([
+    'ACC-USER-0001',
+    'Karyawan KPU',
+    'karyawan@kpu-serang.go.id',
+    hashPassword('User@123'),
+    'user',
+    timestamp,
+  ]);
+
+  Logger.log('✅ Akun admin dan user default berhasil dibuat!');
+  Logger.log('   Admin: admin@kpu-serang.go.id / Admin@123');
+  Logger.log('   User:  karyawan@kpu-serang.go.id / User@123');
 }
